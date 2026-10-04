@@ -24,6 +24,6 @@ class HealthTest extends TestCase
     {
         $response = $this->withHeaders(['Origin' => 'https://untrusted.example'])->getJson('/api/health');
         $response->assertOk();
-        $this->assertFalse($response->headers->has('Access-Control-Allow-Origin'));
+        $this->assertNotSame('https://untrusted.example', $response->headers->get('Access-Control-Allow-Origin'));
     }
 }

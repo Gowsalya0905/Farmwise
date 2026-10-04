@@ -1,6 +1,6 @@
 # Farmwise
 
-Farmwise will help farmers record farm work, costs, harvests and sales, and compare seasons. This first step provides a React frontend and Laravel REST API with a working connection check. Authentication and the farming modules are not implemented yet.
+Farmwise will help farmers record farm work, costs, harvests and sales, and compare seasons. The React JavaScript/JSX frontend and Laravel REST API now support registration, sign in, sign out, account restoration and owner-isolated farms. Other farming modules are planned.
 
 ## Requirements
 
@@ -78,7 +78,7 @@ For macOS/Linux, use `cp .env.example .env` instead of `Copy-Item`; the Composer
 
 `frontend/src/lib/api.js` uses `VITE_API_BASE_URL` (default `http://localhost:8000/api`). Public Vite variables are visible in the browser: never put secrets in them. Restart Vite after changing frontend `.env`.
 
-The backend accepts origins listed in `FRONTEND_URL`, separated by commas. The example allows `http://localhost:5173` and `http://127.0.0.1:5173`. Vite uses port 5173 with `strictPort` so it does not silently move to a disallowed port. Stop the conflicting process or update both configuration values. CORS is not authentication; it does not protect farmer records. Credentialed requests are disabled until the authentication module defines their requirements.
+The backend accepts origins listed in `FRONTEND_URL`, separated by commas, and allows credentialed requests. Use the same hostname for frontend and backend: `localhost:5173` with `localhost:8000`, or `127.0.0.1:5173` with `127.0.0.1:8000`. Vite uses port 5173 with `strictPort`. CORS is not authentication. Auth and farms routes use Laravel's web session and CSRF middleware; the frontend sends cookies with every account request and fetches a fresh CSRF token before mutations. Deploy both applications on the same site over HTTPS with `SESSION_SECURE_COOKIE=true`, `APP_DEBUG=false` and explicitly trusted frontend origins. Never store session credentials in browser storage.
 
 If the page reports unavailable, check that both servers are running, then check the API URL, ports and frontend origin. After editing backend `.env`, run `php artisan config:clear`; restart the backend if necessary.
 
@@ -100,7 +100,7 @@ npm run lint
 npm run build
 ```
 
-The backend tests cover health JSON and allowed/rejected CORS origins. Tests use in-memory SQLite and do not touch `farmwise`. A successful migration run against MySQL separately verifies the database. The frontend build bundles the JavaScript and JSX application.
+The backend tests cover health JSON, allowed/rejected CORS origins, authentication, CSRF, throttling and farmer isolation. Tests use in-memory SQLite and do not touch `farmwise`. A successful migration run against MySQL separately verifies the database. The frontend build bundles the JavaScript and JSX application.
 
 ## Folder structure and next modules
 
@@ -120,7 +120,19 @@ backend/database/migrations/  versioned table definitions
 backend/tests/           unit and API feature tests
 ```
 
-Only Laravel's starter users, password reset tokens, sessions, cache and queue tables are migrated. No farm business tables or authentication endpoints have been added. The starter User model is preparation for the next module, not working login.
+Laravel's starter tables and the owner-indexed `farms` table are defined by migrations. Run `php artisan migrate` after configuring your own MySQL credentials. Existing databases and credentials are not replaced.
+
+## Authentication and farm isolation
+
+- `GET /api/auth/csrf` returns a session CSRF token. Send it as `X-CSRF-TOKEN` on mutations.
+- `POST /api/auth/register` accepts name, email, password and password_confirmation; passwords require 12 characters. Email is normalized to lowercase.
+- `POST /api/auth/login` accepts email and password. Registration and login are limited to five requests per minute per IP.
+- `GET /api/auth/user` restores the current account; `POST /api/auth/logout` invalidates the session. Both require authentication.
+- `/api/farms` supports authenticated list/create and `/api/farms/{id}` supports read/update/delete. Only name is writable. Lists paginate at 25 records. Ownership comes from the authenticated user, and submitted `user_id` values are rejected. Foreign farm IDs return 404; policies enforce ownership too.
+
+The JSX account panel supports registration, sign in/out, and listing/adding farms. The original health check remains available. Tests use isolated SQLite and cover two-farmer isolation, owner spoofing, authentication, logout, CSRF and throttling. Plots, crops, seasons, financial records and reports are not exposed yet; they must enforce the relationship requirements in the data model before adding routes.
+
+Verification on this Windows environment: PHP 8.2.12 and Composer 2.8.9 are available. System Node 20.11.1 is too old for the locked Vite version; install Node 24 LTS. MySQL responds on port 3306 but rejects the example root credentials. Enter valid credentials in ignored `backend/.env`, then run migrations; no database credentials or accounts have been changed.
 
 The planned ownership and relationships are documented in [docs/data-model.md](docs/data-model.md). Implement them through migrations, policies and authenticated API tests as each module is added. Never return another farmer's records, and never trust a submitted owner ID.
 

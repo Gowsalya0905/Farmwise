@@ -10,3 +10,6 @@ button { background: #245b38; color: white; border: 0; border-radius: 8px; min-h
 button:disabled { opacity: .6; cursor: wait; }
 button:focus-visible { outline: 3px solid #a87718; outline-offset: 3px; }
 .note { color: #526557; font-size: .95rem; margin-top: 32px; }
+form { display: grid; gap: 16px; margin: 20px 0; }
+label { display: grid; gap: 6px; }
+input { padding: 12px; border: 1px solid #8b9b88; border-radius: 6px; font: inherit; }

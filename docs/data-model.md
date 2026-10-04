@@ -1,6 +1,6 @@
 # Planned data model — not implemented yet
 
-Add business tables through Laravel migrations when their modules are built. Authentication is next. Until authenticated routes and policies exist, expose only the public API health endpoint.
+Authentication and the minimal farms module are implemented. Farms have required indexed `user_id` foreign keys with restrictive owner deletion. Authenticated farm queries are scoped through the current user's farms relationship and protected by policies. Owner IDs cannot be supplied by clients. All other business tables below remain planned; add them through migrations when their modules are built.
 
 - **User → farms**: each farm has a required `user_id` owner.
 - **Farm → plots**: each plot has a required `farm_id`. A farmer may own many farms and plots.
@@ -13,4 +13,4 @@ Use foreign keys and indexes, decimal columns for money/quantity, explicit curre
 
 ## Farmer isolation
 
-Authenticate every future business API route. Resolve records through the authenticated user's ownership relationships and enforce Laravel policies for read/write/delete. Derive `user_id` on the server, validate that foreign IDs belong to the same farmer, and scope report queries too. CORS alone provides no access control. Add feature tests using two farmers to prove that one cannot view, update, delete or link the other's records. These are requirements for upcoming modules, not guarantees implemented by this initial scaffold.
+Authenticate every business API route. Resolve records through the authenticated user's ownership relationships and enforce Laravel policies for read/write/delete. Derive `user_id` on the server, validate that foreign IDs belong to the same farmer, and scope report queries too. CORS alone provides no access control. The farms feature tests use two farmers to prove read/update/delete isolation and rejected ownership assignment. Future modules must add tests for foreign relationship IDs before exposing those modules; the farms tests do not guarantee isolation for unimplemented tables.

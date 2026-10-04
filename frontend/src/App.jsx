@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { checkApi } from './lib/api'
 import './App.css'
+import AuthPanel from './features/AuthPanel'
 
 function App() {
   const [status, setStatus] = useState('checking')
@@ -31,7 +32,7 @@ function App() {
         </p>
         <button onClick={() => { setStatus('checking'); setAttempt(attempt + 1) }} disabled={status === 'checking'}>Check again</button>
       </section>
-      <p className="note">Initial setup is complete. Authentication and farming modules will follow.</p>
+      <AuthPanel />
     </main>
   )
 }
