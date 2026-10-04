@@ -1,0 +1,22 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+# Dependencies and generated files
+**/node_modules/
+**/vendor/
+**/dist/
+**/coverage/
+**/*.tsbuildinfo
+**/*.log
+backend/database/*.sqlite*
+backend/public/build/
+backend/public/hot
+backend/.phpunit.result.cache
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
