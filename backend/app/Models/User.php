@@ -11,6 +11,11 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    public function crops(): HasMany
+    {
+        return $this->hasMany(Crop::class);
+    }
+
     public function farms(): HasMany
     {
         return $this->hasMany(Farm::class);

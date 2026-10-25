@@ -39,6 +39,7 @@ class FarmController extends Controller
     {
         $record = $request->user()->farms()->findOrFail($farm);
         Gate::authorize('delete', $record);
+        abort_if($record->plots()->exists(), 409, 'Remove the farm\'s plots before deleting this farm.');
         $record->delete();
 
         return response()->noContent();

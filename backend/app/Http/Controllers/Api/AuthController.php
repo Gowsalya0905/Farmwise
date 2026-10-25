@@ -23,6 +23,7 @@ class AuthController extends Controller
         $user = User::create($data);
         Auth::login($user);
         $request->session()->regenerate();
+        $request->session()->put('auth_password_hash', $user->getAuthPassword());
 
         return response()->json(['user' => $user], 201)->header('Cache-Control', 'no-store');
     }
@@ -38,6 +39,7 @@ class AuthController extends Controller
             throw ValidationException::withMessages(['email' => ['The provided credentials do not match our records.']]);
         }
         $request->session()->regenerate();
+        $request->session()->put('auth_password_hash', $request->user()->getAuthPassword());
 
         return response()->json(['user' => $request->user()])->header('Cache-Control', 'no-store');
     }

@@ -4,7 +4,7 @@ export async function api(path, options = {}) {
   const method = options.method || 'GET'
   let token
   if (method !== 'GET') {
-    const csrf = await fetch(`${apiBaseUrl}/auth/csrf`, { credentials: 'include', headers: { Accept: 'application/json' } })
+    const csrf = await fetch(`${apiBaseUrl}/auth/csrf`, { signal: options.signal, credentials: 'include', headers: { Accept: 'application/json' } })
     if (!csrf.ok) throw new Error('Could not prepare a secure request. Please retry.')
     token = (await csrf.json()).token
   }
@@ -17,6 +17,7 @@ export async function api(path, options = {}) {
   if (!response.ok) {
     const error = new Error(Object.values(data?.errors || {}).flat().join(' ') || data?.message || 'Request failed')
     error.status = response.status
+    error.errors = data?.errors || {}
     throw error
   }
   return data

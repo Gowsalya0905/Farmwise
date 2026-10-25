@@ -41,7 +41,7 @@ class AuthIsolationTest extends TestCase
         $bob = User::factory()->create();
         $own = $alice->farms()->create(['name' => 'Alice farm']);
         $foreign = $bob->farms()->create(['name' => 'Bob farm']);
-        $this->actingAs($alice);
+        $this->actingAs($alice)->withSession(['auth_password_hash' => $alice->password]);
         $this->getJson('/api/farms')->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $own->id);
         $this->getJson('/api/farms/'.$foreign->id)->assertNotFound();
         $this->patchJson('/api/farms/'.$foreign->id, ['name' => 'Stolen'])->assertNotFound();

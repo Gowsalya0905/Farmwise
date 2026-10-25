@@ -1,6 +1,8 @@
 <?php
 
 return [
+    // FRONTEND_URL may list CORS origins; reset mail uses the first configured origin.
+    'frontend_url' => trim(explode(',', env('FRONTEND_URL', 'http://localhost:5173'))[0]),
 
     /*
     |--------------------------------------------------------------------------
